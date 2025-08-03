@@ -2,23 +2,34 @@ import pygame
 '''
     Initializes a pygame window with given dimensions/title, handles events, and creates the main loop
 
-    __init__ paramseter:
-        title = string - Title of the screen default: "Window"
-        width = int: width of screen default: 400
-        height = int: height of screen default: 300
-        color = int tuple (RED, GREEN, BLUE) - Background Color default: WHITE or (255,255,255)
-        events = dictionary{pygame.EVENT : function} -> Links pygame events to functions
-            (Note: give function name without parentheses - Ex: {pygame.QUIT : quit} instead of {pygame.Quit : quit()})
+    __init__ parameters:
+        title = string
+        width = int -> Default: 400
+            -Note: Minimum > 0 -> Maximum <= Current Display Resolution width
+        height = int -> Default: 300
+            -Note: Minimum > 0 -> Maximum <= Current Display Resolution height
+        color = (int, int, int) -> (RED, GREEN, BLUE)
+            -Note: Minimum of 0: (0, 0, 0) -> Maximum of 255: (255, 255, 255)
+        events = dictionary -> {key = pygame.EVENT : value = function}
+            -Note: Exclude parentheses from functions or use lambda function 
+                -Ex: {pygame.QUIT, quit} or {pygame.QUIT, lambda: function(parameter)}
 
-    Extra member vars:
-        WHITE = constant int tuple (RED,GREEN,BLUE) for white
+    Member vars:
+        WHITE = constant int tuple (RED,GREEN,BLUE) -> represents the color white
         screen = pygame display screen
-        running = boolean - True = running / False = exiting
+        running = boolean -> True = running / False = exiting
+        width = Window screen width
+        height = Window screen height
+        color = Background color Default: WHITE or (255,255,255)
+        events = Links pygame events to functions
+        draw_functions = list to append lambda functions that draw to screen each loop
+            -Ex: screen.append(lambda: draw(screen))
+
 '''
 class Window:
     WHITE = (255, 255, 255)
 
-    # initialize pygame window,screen, and member variables
+    # initialize pygame, sets up the screen, and defines member variables
     def __init__(self, title = "Window", width = 400, height = 300, color = WHITE, events = {}):
         pygame.init()
         pygame.display.set_caption(title)
@@ -28,6 +39,7 @@ class Window:
         self.height = height
         self.color = color
         self.events = events
+        self.draw_functions = []
 
     def quit(self):
         print("Exiting Window")
@@ -43,22 +55,19 @@ class Window:
 
         for event in pygame.event.get():
             if event.type in self.events:
-                self.events[event.type]() 
+                self.events[event.type]() # Runs functions paired with the pygame event type
+
+    # Handles drawing to screen for each loop by filing the background, calling draw functions, and updating the display window
+    def draw(self):
+        self.screen.fill(self.color)
+        for function in self.draw_functions:
+            function()
+        pygame.display.update()
 
     # Creates main loop, handle user input events, update screen, and quit after running = False
     def main_loop(self):
         while(self.running):
             self.handle_events()
-            self.screen.fill(self.color)
-            pygame.display.flip()
+            self.draw()
 
         pygame.quit()
-
-def mouse_down():
-    print("Mouse Down")
-
-def mouse_up():
-    print("Mouse Up")
-
-window_a = Window("Test Window A", events={pygame.MOUSEBUTTONDOWN : mouse_down, pygame.MOUSEBUTTONUP : mouse_up})
-window_a.main_loop()

@@ -32,6 +32,12 @@ def get_circle_center(origin, length, angle):
     y = origin[1] + length * math.sin(math.radians(angle))
     return (math.floor(x), math.floor(y))
 
+# Checks if point is inside of a circle given the center and radius of the circle
+def inside_circle(point, circle_center, radius):
+    delta_x = point[0] - circle_center[0] # Difference in x value -> x1 - x2
+    delta_y = point[1] - circle_center[1] # Difference in y value -> y1 - y2
+    return radius >= math.sqrt(delta_x * delta_x + delta_y * delta_y) # Distance Formula used to compare distance from center against radius
+
 class Pendulum:
     RED = (255, 0, 0)
     BLACK = (0, 0, 0)
@@ -46,10 +52,13 @@ class Pendulum:
         self.mass_center = (self.origin[0], self.origin[1] + length)
         self.holding = False
 
-    # Setter function for holding
+    # Setter function for holding if inside circle
     def set_holding(self, holding):
         self.holding = holding
-        print ("Holding = ", holding)
+        mouse_position = pygame.mouse.get_pos()
+        if not inside_circle(mouse_position, self.mass_center, self.radius):
+            self.holding = False
+        print ("Holding = ", self.holding)
 
     # Draw Pendulum to Window screen
     def draw(self, screen):

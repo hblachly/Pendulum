@@ -1,6 +1,5 @@
 import pygame
 import math
-from window import Window
 
 '''
     Allows a Pendulum to be drawn on a Window screen and simulates it's physics at different angles
@@ -58,7 +57,6 @@ class Pendulum:
         mouse_position = pygame.mouse.get_pos()
         if not inside_circle(mouse_position, self.mass_center, self.radius):
             self.holding = False
-        print ("Holding = ", self.holding)
 
     # Draw Pendulum to Window screen
     def draw(self, screen):
@@ -72,13 +70,5 @@ class Pendulum:
         if self.holding:
             mouse_position = pygame.mouse.get_pos()
             self.angle = get_new_angle(mouse_position, self.origin)
-            print(self.angle)
+            
         self.mass_center = get_circle_center(self.origin, self.length, self.angle)
-
-pendulum = Pendulum(origin=(600, 250), length = 200, radius=25)
-window = Window("Pendulum", width = 1200, height = 800)
-window.draw_functions.append(lambda: pendulum.draw(window.screen))
-window.draw_functions.append(pendulum.update)
-window.events[pygame.MOUSEBUTTONDOWN] = lambda: pendulum.set_holding(True)
-window.events[pygame.MOUSEBUTTONUP] = lambda: pendulum.set_holding(False)
-window.main_loop()

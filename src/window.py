@@ -1,4 +1,5 @@
 import pygame
+from utilities import WHITE
 '''
     Initializes a pygame window with given dimensions/title, handles events, and creates the main loop
 
@@ -15,7 +16,6 @@ import pygame
                 -Ex: {pygame.QUIT, quit} or {pygame.QUIT, lambda: function(parameter)}
 
     Member vars:
-        WHITE = constant int tuple (RED,GREEN,BLUE) -> represents the color white
         screen = pygame display screen
         running = boolean -> True = running / False = exiting
         width = Window screen width
@@ -27,7 +27,6 @@ import pygame
 
 '''
 class Window:
-    WHITE = (255, 255, 255)
 
     # initialize pygame, sets up the screen, and defines member variables
     def __init__(self, title = "Window", width = 400, height = 300, color = WHITE, events = {}):

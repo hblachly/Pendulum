@@ -1,5 +1,5 @@
 import pygame
-import math
+import utilities
 
 '''
     Allows a Pendulum to be drawn on a Window screen and simulates it's physics at different angles
@@ -8,7 +8,7 @@ import math
         origin: (int, int)
         length: int
         radius: int
-        angle: double
+        angle: float
 
     Member Variables:
         origin: Anchor point at which to draw the pendulum
@@ -21,26 +21,7 @@ import math
         holding: Whether the mouse is held down on the circle at the end of the pendulum
 '''
 
-# Takes the difference between two points and finds the angle based on the change
-def get_new_angle(new_point, old_point):
-    return math.degrees(math.atan2(new_point[1] - old_point[1], new_point[0] - old_point[0]))
-
-# Gets the center of a circle at a distance = length from the point = orign at the angle along a unit circle
-def get_circle_center(origin, length, angle):
-    x = origin[0] + length * math.cos(math.radians(angle))
-    y = origin[1] + length * math.sin(math.radians(angle))
-    return (math.floor(x), math.floor(y))
-
-# Checks if point is inside of a circle given the center and radius of the circle
-def inside_circle(point, circle_center, radius):
-    delta_x = point[0] - circle_center[0] # Difference in x value -> x1 - x2
-    delta_y = point[1] - circle_center[1] # Difference in y value -> y1 - y2
-    return radius >= math.sqrt(delta_x * delta_x + delta_y * delta_y) # Distance Formula used to compare distance from center against radius
-
 class Pendulum:
-    RED = (255, 0, 0)
-    BLACK = (0, 0, 0)
-    WHITE = (255, 255, 255)
     
     # Initialize class and define member variables
     def __init__(self, origin = (10, 4), length = 15, radius = 10, angle = 90):
@@ -55,20 +36,20 @@ class Pendulum:
     def set_holding(self, holding):
         self.holding = holding
         mouse_position = pygame.mouse.get_pos()
-        if not inside_circle(mouse_position, self.mass_center, self.radius):
+        if not utilities.inside_circle(mouse_position, self.mass_center, self.radius):
             self.holding = False
 
     # Draw Pendulum to Window screen
     def draw(self, screen):
-        pygame.draw.line(screen, self.BLACK, self.origin, self.mass_center) # Attachment to mass
-        pygame.draw.circle(screen, self.RED, self.origin, 4) # Anchor point
-        pygame.draw.circle(screen, self.BLACK, self.mass_center, self.radius) # Mass circle outline
-        pygame.draw.circle(screen, self.WHITE, self.mass_center, self.radius - 2) # Mass circle Fill
+        pygame.draw.line(screen, utilities.BLACK, self.origin, self.mass_center) # Attachment to mass
+        pygame.draw.circle(screen, utilities.RED, self.origin, 4) # Anchor point
+        pygame.draw.circle(screen, utilities.BLACK, self.mass_center, self.radius) # Mass circle outline
+        pygame.draw.circle(screen, utilities.WHITE, self.mass_center, self.radius - 2) # Mass circle Fill
 
     # Update the pendulum's state / member variables
     def update(self):
         if self.holding:
             mouse_position = pygame.mouse.get_pos()
-            self.angle = get_new_angle(mouse_position, self.origin)
+            self.angle = utilities.get_angle(mouse_position, self.origin)
             
-        self.mass_center = get_circle_center(self.origin, self.length, self.angle)
+        self.mass_center = utilities.get_point_on_circle(self.origin, self.length, self.angle)

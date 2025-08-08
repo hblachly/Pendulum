@@ -14,6 +14,8 @@ from utilities import WHITE
         events = dictionary -> {key = pygame.EVENT : value = function}
             -Note: Exclude parentheses from functions or use lambda function 
                 -Ex: {pygame.QUIT, quit} or {pygame.QUIT, lambda: function(parameter)}
+        fps = int -> Default: 60
+            -Note: Min = 0 = no fps cap
 
     Member vars:
         screen = pygame display screen
@@ -22,14 +24,17 @@ from utilities import WHITE
         height = Window screen height
         color = Background color Default: WHITE or (255,255,255)
         events = Links pygame events to functions
-        draw_functions = list to append lambda functions that draw to screen each loop
-            -Ex: screen.append(lambda: draw(screen))
+        update_functions = list to append functions that are called each loop
+            -Ex: window.update_functions.append(pendulum.update)
+        fps = Number of times the main loop should run per second at most
+        clock = pygame Clock allows for more precise number of executions of the main loop per second
+            -Note: Limits execution of main loop to number of frames per second or fps
 
 '''
 class Window:
 
     # initialize pygame, sets up the screen, and defines member variables
-    def __init__(self, title = "Window", width = 400, height = 300, color = WHITE, events = {}):
+    def __init__(self, title = "Window", width = 400, height = 300, color = WHITE, events = {}, fps = 60):
         pygame.init()
         pygame.display.set_caption(title)
         self.screen = pygame.display.set_mode((width, height))
@@ -38,7 +43,9 @@ class Window:
         self.height = height
         self.color = color
         self.events = events
-        self.draw_functions = []
+        self.update_functions = []
+        self.fps = fps
+        self.clock = pygame.time.Clock()
 
     def quit(self):
         print("Exiting Window")
@@ -56,17 +63,18 @@ class Window:
             if event.type in self.events:
                 self.events[event.type]() # Runs functions paired with the pygame event type
 
-    # Handles drawing to screen for each loop by filing the background, calling draw functions, and updating the display window
-    def draw(self):
+    # Handles updates by filling the background, calling functions, and updating the display window for each loop
+    def update(self):
         self.screen.fill(self.color)
-        for function in self.draw_functions:
+        for function in self.update_functions:
             function()
         pygame.display.update()
 
     # Creates main loop, handle user input events, update screen, and quit after running = False
     def main_loop(self):
         while(self.running):
+            self.clock.tick(self.fps) # Number of loops executed per second = fps
             self.handle_events()
-            self.draw()
+            self.update()
 
         pygame.quit()

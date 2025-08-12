@@ -19,7 +19,6 @@ from utilities import WHITE
 
     Member vars:
         screen = pygame display screen
-        running = boolean -> True = running / False = exiting
         width = Window screen width
         height = Window screen height
         color = Background color Default: WHITE or (255,255,255)
@@ -27,7 +26,10 @@ from utilities import WHITE
         update_functions = list to append functions that are called each loop
             -Ex: window.update_functions.append(pendulum.update)
         fps = Number of times the main loop should run per second at most
-        clock = pygame Clock allows for more precise number of executions of the main loop per second
+
+        Private Variables:
+        _running = boolean -> True = running / False = exiting
+        _clock = pygame Clock allows for more precise number of executions of the main loop per second
             -Note: Limits execution of main loop to number of frames per second or fps
 
 '''
@@ -38,43 +40,47 @@ class Window:
         pygame.init()
         pygame.display.set_caption(title)
         self.screen = pygame.display.set_mode((width, height))
-        self.running = True
         self.width = width
         self.height = height
         self.color = color
         self.events = events
         self.update_functions = []
         self.fps = fps
-        self.clock = pygame.time.Clock()
 
-    def quit(self):
+        # Private variables
+        self._running = True
+        self._clock = pygame.time.Clock()
+    
+    # Creates main loop, handle user input events, update screen, and quit after running = False
+    def main_loop(self):
+        while(self._running):
+            self._clock.tick(self.fps) # Number of loops executed per second = fps
+            self._handle_events()
+            self._update()
+
+        pygame.quit()
+
+    # Private Functions
+
+    def _quit(self):
         print("Exiting Window")
-        self.running = False
+        self._running = False
 
     # Handle pygame events for user input
     # Adds default quit function in events if pygame.QUIT is not found in events
     # When a pygame event is found as a key -> Runs function found as the value at that key
-    def handle_events(self):
+    def _handle_events(self):
         if pygame.QUIT not in self.events:
             print("Adding quit Key : Value to dictionary")
-            self.events[pygame.QUIT] = self.quit
+            self.events[pygame.QUIT] = self._quit
 
         for event in pygame.event.get():
             if event.type in self.events:
                 self.events[event.type]() # Runs functions paired with the pygame event type
 
     # Handles updates by filling the background, calling functions, and updating the display window for each loop
-    def update(self):
+    def _update(self):
         self.screen.fill(self.color)
         for function in self.update_functions:
             function()
         pygame.display.update()
-
-    # Creates main loop, handle user input events, update screen, and quit after running = False
-    def main_loop(self):
-        while(self.running):
-            self.clock.tick(self.fps) # Number of loops executed per second = fps
-            self.handle_events()
-            self.update()
-
-        pygame.quit()

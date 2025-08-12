@@ -41,6 +41,7 @@ class Pendulum:
         self._holding = False
         self._time = 0.0
         self._amplitude = 0.0
+        self._angular_velocity = 0.0
 
     # Setter function for holding if inside circle
     def set_holding(self, holding):
@@ -57,12 +58,18 @@ class Pendulum:
         pygame.draw.circle(screen, utilities.WHITE, self._mass_center, self.radius - 2) # Mass circle Fill
 
     # Update the pendulum's state / member variables
-    def update(self):
+    # type: int representing which type of function to use to update the angle
+    # _angle_time_approximation: tpye = 1, _angular_velocity_change: type = 2, anything else does not update the angle
+    def update(self, type=0):
         if self._holding:
             mouse_position = pygame.mouse.get_pos()
             self.angle = utilities.get_angle(mouse_position, self.origin)
 
-        self._angle_time_approximation()
+        if (type == 1):
+            self._angle_time_approximation()
+        elif (type == 2):
+            self._angular_velocity_change()
+            
         self._mass_center = utilities.get_point_on_circle(self.origin, self.length, self.angle)
 
     # Private Functions
@@ -79,4 +86,16 @@ class Pendulum:
             meter_length = self.length / 100
             angular_frequency = math.sqrt(utilities.GRAVITY / meter_length)
             self.angle = 90 + self._amplitude * math.cos(angular_frequency * self._time) # Equilibrium angle of 90 degrees + small angle approximation formula
-            self._time += 1 / 60
+            self._time += 1 / 60 # Add time step of 1/fps
+
+    # Add to angle using angular velocity which is added to using the angular acceleration formula
+    # Scales by time step = 1/fps for updating each frame per second or loop
+    def _angular_velocity_change(self):
+        if self._holding:
+            self._angular_velocity = 0.0
+
+        else:
+            meter_length = self.length / 100
+            angular_displacement = self.angle - 90
+            self._angular_velocity += utilities.get_angular_acceleration(meter_length, angular_displacement) 
+            self.angle += self._angular_velocity / 60 # Scale by time step or seconds per frame = 1/fps

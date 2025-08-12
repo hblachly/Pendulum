@@ -36,3 +36,10 @@ def inside_circle(point, circle_center, radius):
     delta_x = point[0] - circle_center[0] # Difference in x values -> point[x] - circle_center[x]
     delta_y = point[1] - circle_center[1] # Difference in y values -> point[y] - circle_center[y]
     return radius >= math.sqrt(delta_x * delta_x + delta_y * delta_y) # Compare radius  against distance from center using distance formula
+
+# Calculates the angular acceleration of gravity perpendicular to the line connecting the mass to the anchor point
+# The negative value creates a restoring force towards the equilibrium angle
+def get_angular_acceleration(length, angular_displacement):
+    angular_acceleration = -GRAVITY / length # Negative for restoring force
+    angular_acceleration *= math.sin(math.radians(angular_displacement)) # sin gets the perpendicular component
+    return angular_acceleration

@@ -60,6 +60,16 @@ class Window:
 
         pygame.quit()
 
+    # Add a function to update_functions
+    def add_update_function(self, function):
+        if callable(function):
+            self.update_functions.append(function)
+
+    # Map a pygame event to a function by adding a {key = pygame_events : value = function} pair to events
+    def add_event(self, pygame_event, function):
+        if callable(function):
+            self.events[pygame_event] = function
+
     # Private Functions
 
     def _quit(self):

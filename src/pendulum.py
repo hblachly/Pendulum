@@ -60,22 +60,23 @@ class Pendulum:
     # Update the pendulum's state / member variables
     # type: int representing which type of function to use to update the angle
     # _angle_time_approximation: tpye = 1, _angular_velocity_change: type = 2, anything else does not update the angle
-    def update(self, type=0):
+    def update(self, type=0, fps = 60):
+        if fps < 1: fps = 60
         if self._holding:
             mouse_position = pygame.mouse.get_pos()
             self.angle = utilities.get_angle(mouse_position, self.origin)
 
         if (type == 1):
-            self._angle_time_approximation()
+            self._angle_time_approximation(fps)
         elif (type == 2):
-            self._angular_velocity_change()
+            self._angular_velocity_change(fps)
             
         self._mass_center = utilities.get_point_on_circle(self.origin, self.length, self.angle)
 
     # Private Functions
         
     # Updates the amplitude and time while holding and then updates the angle when dropped using the small angle approximation formula
-    def _angle_time_approximation(self):
+    def _angle_time_approximation(self, fps):
         if self._holding:
             self._amplitude = self.angle - 90
             if self._amplitude < -180: # Keeps the amplitude ranging from -180 to 180
@@ -86,11 +87,11 @@ class Pendulum:
             meter_length = self.length / 100
             angular_frequency = math.sqrt(utilities.GRAVITY / meter_length)
             self.angle = 90 + self._amplitude * math.cos(angular_frequency * self._time) # Equilibrium angle of 90 degrees + small angle approximation formula
-            self._time += 1 / 60 # Add time step of 1/fps
+            self._time += 1 / fps # Add time step of 1/fps
 
     # Add to angle using angular velocity which is added to using the angular acceleration formula
     # Scales by time step = 1/fps for updating each frame per second or loop
-    def _angular_velocity_change(self):
+    def _angular_velocity_change(self, fps):
         if self._holding:
             self._angular_velocity = 0.0
 
@@ -98,4 +99,4 @@ class Pendulum:
             meter_length = self.length / 100
             angular_displacement = self.angle - 90
             self._angular_velocity += utilities.get_angular_acceleration(meter_length, angular_displacement) 
-            self.angle += self._angular_velocity / 60 # Scale by time step or seconds per frame = 1/fps
+            self.angle += self._angular_velocity / fps # Scale by time step or seconds per frame = 1/fps
